@@ -17,20 +17,19 @@ namespace Game.Player
         [SerializeField] private Vector3 _topRightPosition;
         [SerializeField] private Vector3 _bottomLeftPosition;
         [SerializeField] private Vector3 _bottomRightPosition;
-        [SerializeField] Vector3 _cachedPosition;
-        [FormerlySerializedAs("_angle")] [SerializeField] private float _cacheAngle;
+        [SerializeField] private Vector3 _cachedPosition;
+        [SerializeField] private TMP_Text _playerNameText;
+        [SerializeField] private float _cacheAngle;
         private bool _isOwner;
         private Action _moveAction;
         private Vector3 _direction;
+        private string _playerName;
 
         public NetworkVariable<Vector3> Position = new NetworkVariable<Vector3>(
             writePerm: NetworkVariableWritePermission.Owner);
-
         public NetworkVariable<float> Angle = new NetworkVariable<float>(
             writePerm: NetworkVariableWritePermission.Owner);
 
-        string _playerName;
-        [SerializeField] TMP_Text _playerNameText;
 
         private void Start()
         {
@@ -66,7 +65,7 @@ namespace Game.Player
         }
 
 
-        void Update()
+        private void Update()
         {
             if (IsLocalPlayer)
             {
@@ -114,44 +113,35 @@ namespace Game.Player
             }
         }
 
-        public void Move()
+        private void Move()
         {
-            SubmitPositionRequestRpc();
             Sendclient();
         }
 
-        [Rpc(SendTo.Server)]
-        void SubmitPositionRequestRpc(RpcParams rpcParams = default)
+
+        private void Sendclient(RpcParams rpcParams = default)
         {
             var currentPosition = GetcurrentPosition();
             var currentAngle = GetcurrentAngle();
             transform.localPosition += currentPosition;
+            Vector3 position = ClampPosition(transform.localPosition);
+            transform.localPosition = position;
             transform.rotation = Quaternion.Euler(0, 0, currentAngle);
             Position.Value = transform.localPosition;
             Angle.Value = currentAngle;
         }
 
-        void Sendclient(RpcParams rpcParams = default)
-        {
-            var currentPosition = GetcurrentPosition();
-            var currentAngle = GetcurrentAngle();
-            transform.localPosition += currentPosition;
-            transform.rotation = Quaternion.Euler(0, 0, currentAngle);
-            Position.Value = transform.localPosition;
-            Angle.Value = currentAngle;
-        }
-
-        public Vector3 GetcurrentPosition()
+        private Vector3 GetcurrentPosition()
         {
             return _cachedPosition;
         }
 
-        public float GetcurrentAngle()
+        private float GetcurrentAngle()
         {
             return _cacheAngle;
         }
 
-        Vector3 ClampPosition(Vector3 position)
+        private Vector3 ClampPosition(Vector3 position)
         {
             position.x = Mathf.Clamp(position.x, _bottomLeftPosition.x, _bottomRightPosition.x);
             position.y = Mathf.Clamp(position.y, _bottomLeftPosition.y, _topLeftPosition.y);

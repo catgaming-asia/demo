@@ -18,9 +18,9 @@ namespace Game
         [SerializeField] private Button _hostButton;
         [SerializeField] private Button _clientButton;
         [SerializeField] private Button _serverButton;
-        [SerializeField] private CanvasGroup buttonGroup;
+        [SerializeField] private Button _backButton;
+        [SerializeField] private CanvasGroup _buttonGroup;
 
-        public Button RandomButton;
 
         void Awake()
         {
@@ -35,26 +35,38 @@ namespace Game
             _clientButton.onClick.AddListener(StartClient);
             _serverButton.onClick.RemoveAllListeners();
             _serverButton.onClick.AddListener(StartServer);
-            buttonGroup.EnableCanvasGroup(true);
+            _backButton.onClick.RemoveAllListeners();
+            _backButton.onClick.AddListener(Back);
+            _buttonGroup.EnableCanvasGroup(true);
+            _backButton.gameObject.SetActive(false);
+        }
+
+        private void Back()
+        {
+            _networkManager.Shutdown();
+            _buttonGroup.EnableCanvasGroup(true);
+            _backButton.gameObject.SetActive(false);
         }
 
         private void StartHost()
         {
             _networkManager.StartHost();
-            buttonGroup.EnableCanvasGroup(false);
+            _buttonGroup.EnableCanvasGroup(false);
+            _backButton.gameObject.SetActive(true);
         }
 
         private void StartClient()
         {
             _networkManager.StartClient();
-            buttonGroup.EnableCanvasGroup(false);
+            _buttonGroup.EnableCanvasGroup(false);
+            _backButton.gameObject.SetActive(true);
         }
 
         private void StartServer()
         {
             _networkManager.StartServer();
-            buttonGroup.EnableCanvasGroup(false);
+            _buttonGroup.EnableCanvasGroup(false);
+            _backButton.gameObject.SetActive(true);
         }
-      
     }
 }
