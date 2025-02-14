@@ -14,16 +14,15 @@ namespace Game
 {
     public class GameManager : MonoBehaviour
     {
+        public NetworkObject Parent;
         [SerializeField] private NetworkManager _networkManagerHostClient;
         [SerializeField] private NetworkManager _networkManagerServer;
         [SerializeField] private NetworkManager _networkManager;
-        public NetworkObject Parent;
         [SerializeField] private Button _hostButton;
         [SerializeField] private Button _clientButton;
         [SerializeField] private Button _serverButton;
         [SerializeField] private Button _backButton;
         [SerializeField] private CanvasGroup _buttonGroup;
-
         [SerializeField] private TMP_Text _title;
 
         void Awake()

@@ -11,6 +11,7 @@ namespace Game.Player
 {
     public class PlayerManager : NetworkBehaviour
     {
+        [SerializeField] private TypeNetwork _typeNetwork;
         public float speed = 5f; // Movement speed
         public float stopDistance = 100f; // Stop moving when within this range of the mouse
         [SerializeField] private Vector3 _topLeftPosition;
@@ -20,13 +21,10 @@ namespace Game.Player
         [SerializeField] private Vector3 _cachedPosition;
         [SerializeField] private TMP_Text _playerNameText;
         [SerializeField] private float _cacheAngle;
-        [SerializeField] private TypeNetwork _typeNetwork;
         private bool _isOwner;
         private Action _moveAction;
         private Vector3 _direction;
         private string _playerName;
-
-
         private NetworkVariable<Vector3> _positionSelfHost = new NetworkVariable<Vector3>(
             writePerm: NetworkVariableWritePermission.Owner);
 
