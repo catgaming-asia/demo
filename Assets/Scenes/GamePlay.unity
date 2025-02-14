@@ -984,8 +984,8 @@ MonoBehaviour:
   _hostButton: {fileID: 413237140}
   _clientButton: {fileID: 2117579887}
   _serverButton: {fileID: 966349352}
-  buttonGroup: {fileID: 1914727482}
-  RandomButton: {fileID: 0}
+  _backButton: {fileID: 1325925548}
+  _buttonGroup: {fileID: 1914727482}
 --- !u!1 &693246564
 GameObject:
   m_ObjectHideFlags: 0
@@ -1487,6 +1487,7 @@ GameObject:
   - component: {fileID: 1325925550}
   - component: {fileID: 1325925549}
   - component: {fileID: 1325925548}
+  - component: {fileID: 1325925551}
   m_Layer: 5
   m_Name: Back
   m_TagString: Untagged
@@ -1596,6 +1597,18 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1325925546}
   m_CullTransparentMesh: 1
+--- !u!225 &1325925551
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1325925546}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1 &1340381919
 GameObject:
   m_ObjectHideFlags: 0

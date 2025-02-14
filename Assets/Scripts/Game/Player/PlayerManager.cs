@@ -30,7 +30,7 @@ namespace Game.Player
         public NetworkVariable<float> Angle = new NetworkVariable<float>(
             writePerm: NetworkVariableWritePermission.Owner);
 
-
+       
         private void Start()
         {
             var landCtrl = Locator<LandController>.Instance;
@@ -47,7 +47,7 @@ namespace Game.Player
         {
             if (IsOwner)
             {
-                Move();
+                RpcClient();
             }
 
             if (IsLocalPlayer)
@@ -103,7 +103,7 @@ namespace Game.Player
                 if (moveDirection != Vector3.zero)
                 {
                     _cachedPosition = ClampPosition(moveDirection.normalized * speed);
-                    Move();
+                    RpcClient();
                 }
             }
             else
@@ -113,13 +113,10 @@ namespace Game.Player
             }
         }
 
-        private void Move()
-        {
-            Sendclient();
-        }
+          
 
 
-        private void Sendclient(RpcParams rpcParams = default)
+        private void RpcClient(RpcParams rpcParams = default)
         {
             var currentPosition = GetcurrentPosition();
             var currentAngle = GetcurrentAngle();
