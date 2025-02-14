@@ -17,14 +17,17 @@ namespace Game.Player
         [SerializeField] private Vector3 _topRightPosition;
         [SerializeField] private Vector3 _bottomLeftPosition;
         [SerializeField] private Vector3 _bottomRightPosition;
-        [SerializeField] Vector3 CachedPosition;
-
+        [SerializeField] Vector3 _cachedPosition;
+        [FormerlySerializedAs("_angle")] [SerializeField] private float _cacheAngle;
         private bool _isOwner;
         private Action _moveAction;
         private Vector3 _direction;
+
         public NetworkVariable<Vector3> Position = new NetworkVariable<Vector3>(
             writePerm: NetworkVariableWritePermission.Owner);
 
+        public NetworkVariable<float> Angle = new NetworkVariable<float>(
+            writePerm: NetworkVariableWritePermission.Owner);
 
         string _playerName;
         [SerializeField] TMP_Text _playerNameText;
@@ -65,50 +68,27 @@ namespace Game.Player
 
         void Update()
         {
-      
-
             if (IsLocalPlayer)
             {
                 if (Input.GetMouseButton(0)) // Check if the left mouse button is held
                 {
                     Vector3 mousePos = Input.mousePosition;
-                    _direction= (mousePos - transform.position).normalized;
+                    _direction = (mousePos - transform.position).normalized;
                     float distanceToMouse = Vector3.Distance(transform.position, mousePos);
                     if (distanceToMouse <= stopDistance)
                     {
-                        return; 
+                        return;
                     }
+
                     if (_direction != Vector3.zero)
                     {
-                        float angle = Mathf.Atan2(-_direction.x, _direction.y) * Mathf.Rad2Deg;
-                        transform.rotation = Quaternion.Euler(0, 0, angle);
+                        _cacheAngle = Mathf.Atan2(-_direction.x, _direction.y) * Mathf.Rad2Deg;
+                        transform.rotation = Quaternion.Euler(0, 0, _cacheAngle);
                     }
                 }
+
                 Vector3 moveDirection = Vector3.zero;
-                // if (Input.GetKey(KeyCode.A))
-                // {
-                //     CachedPosition = Movement(TypeMove.left);
-                //     Move();
-                // }
-                //
-                // if (Input.GetKey(KeyCode.D))
-                // {
-                //     CachedPosition = Movement(TypeMove.right);
-                //     Move();
-                // }
-                //
-                // if (Input.GetKey(KeyCode.W))
-                // {
-                //     CachedPosition = Movement(TypeMove.forward);
-                //     Move();
-                // }
-                //
-                // if (Input.GetKey(KeyCode.S))
-                // {
-                //     CachedPosition = Movement(TypeMove.backward);
-                //     Move();
-                // }
-                
+
                 if (Input.GetKey(KeyCode.W)) // Move forward (toward mouse)
                     moveDirection += _direction;
 
@@ -123,14 +103,16 @@ namespace Game.Player
 
                 if (moveDirection != Vector3.zero)
                 {
-                    CachedPosition = moveDirection.normalized * speed * Time.deltaTime;
+                    _cachedPosition = ClampPosition(moveDirection.normalized * speed);
                     Move();
                 }
             }
-
-            transform.localPosition = Position.Value;
+            else
+            {
+                transform.localPosition = Position.Value;
+                transform.rotation = Quaternion.Euler(0, 0, Angle.Value);
+            }
         }
-
 
         public void Move()
         {
@@ -141,52 +123,39 @@ namespace Game.Player
         [Rpc(SendTo.Server)]
         void SubmitPositionRequestRpc(RpcParams rpcParams = default)
         {
-            var randomPosition = GetcurrentPosition();
-            transform.localPosition += randomPosition;
+            var currentPosition = GetcurrentPosition();
+            var currentAngle = GetcurrentAngle();
+            transform.localPosition += currentPosition;
+            transform.rotation = Quaternion.Euler(0, 0, currentAngle);
             Position.Value = transform.localPosition;
+            Angle.Value = currentAngle;
         }
 
         void Sendclient(RpcParams rpcParams = default)
         {
-            var randomPosition = GetcurrentPosition();
-            transform.localPosition += randomPosition;
+            var currentPosition = GetcurrentPosition();
+            var currentAngle = GetcurrentAngle();
+            transform.localPosition += currentPosition;
+            transform.rotation = Quaternion.Euler(0, 0, currentAngle);
             Position.Value = transform.localPosition;
+            Angle.Value = currentAngle;
         }
 
         public Vector3 GetcurrentPosition()
         {
-            return CachedPosition;
+            return _cachedPosition;
         }
 
-        Vector3 Movement(TypeMove typeMove)
+        public float GetcurrentAngle()
         {
-            Vector3 moveDirection = Vector3.zero;
-            switch (typeMove)
-            {
-                case TypeMove.left:
-                    moveDirection = Vector3.left; // (-1, 0, 0)
-                    break;
-                case TypeMove.right:
-                    moveDirection = Vector3.right; // (1, 0, 0)
-                    break;
-                case TypeMove.forward:
-                    moveDirection = Vector3.up; // (0, 1, 0)
-                    break;
-                case TypeMove.backward:
-                    moveDirection = Vector3.down; // (0, -1,0)
-                    break;
-            }
-
-            var postion = moveDirection * speed * Time.deltaTime;
-            return postion;
+            return _cacheAngle;
         }
 
-        enum TypeMove
+        Vector3 ClampPosition(Vector3 position)
         {
-            left,
-            right,
-            forward,
-            backward
+            position.x = Mathf.Clamp(position.x, _bottomLeftPosition.x, _bottomRightPosition.x);
+            position.y = Mathf.Clamp(position.y, _bottomLeftPosition.y, _topLeftPosition.y);
+            return position;
         }
     }
 }
