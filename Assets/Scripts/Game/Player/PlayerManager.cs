@@ -20,17 +20,74 @@ namespace Game.Player
         [SerializeField] private Vector3 _cachedPosition;
         [SerializeField] private TMP_Text _playerNameText;
         [SerializeField] private float _cacheAngle;
+        [SerializeField] private TypeNetwork _typeNetwork;
         private bool _isOwner;
         private Action _moveAction;
         private Vector3 _direction;
         private string _playerName;
 
-        public NetworkVariable<Vector3> Position = new NetworkVariable<Vector3>(
-            writePerm: NetworkVariableWritePermission.Owner);
-        public NetworkVariable<float> Angle = new NetworkVariable<float>(
+
+        private NetworkVariable<Vector3> _positionSelfHost = new NetworkVariable<Vector3>(
             writePerm: NetworkVariableWritePermission.Owner);
 
-       
+        private NetworkVariable<float> _angleSelfHost = new NetworkVariable<float>(
+            writePerm: NetworkVariableWritePermission.Owner);
+
+        private NetworkVariable<Vector3> _positionServer = new NetworkVariable<Vector3>(
+            writePerm: NetworkVariableWritePermission.Owner);
+
+        private NetworkVariable<float> _angleServer = new NetworkVariable<float>(
+            writePerm: NetworkVariableWritePermission.Owner);
+
+        private NetworkVariable<Vector3> _position
+        {
+            get
+            {
+                if (_typeNetwork == TypeNetwork.SelfHost)
+                {
+                    return _positionSelfHost;
+                }
+
+                return _positionServer;
+            }
+            set
+            {
+                if (_typeNetwork == TypeNetwork.SelfHost)
+                {
+                    _positionSelfHost = value;
+                }
+                else
+                {
+                    _positionServer = value;
+                }
+            }
+        }
+
+        private NetworkVariable<float> _angle
+        {
+            get
+            {
+                if (_typeNetwork == TypeNetwork.SelfHost)
+                {
+                    return _angleSelfHost;
+                }
+
+                return _angleServer;
+            }
+            set
+            {
+                if (_typeNetwork == TypeNetwork.SelfHost)
+                {
+                    _angleSelfHost = value;
+                }
+                else
+                {
+                    _angleServer = value;
+                }
+            }
+        }
+
+
         private void Start()
         {
             var landCtrl = Locator<LandController>.Instance;
@@ -63,7 +120,6 @@ namespace Game.Player
                 gameObject.name = _playerName;
             }
         }
-
 
         private void Update()
         {
@@ -108,13 +164,10 @@ namespace Game.Player
             }
             else
             {
-                transform.localPosition = Position.Value;
-                transform.rotation = Quaternion.Euler(0, 0, Angle.Value);
+                transform.localPosition = _position.Value;
+                transform.rotation = Quaternion.Euler(0, 0, _angle.Value);
             }
         }
-
-          
-
 
         private void RpcClient(RpcParams rpcParams = default)
         {
@@ -124,8 +177,8 @@ namespace Game.Player
             Vector3 position = ClampPosition(transform.localPosition);
             transform.localPosition = position;
             transform.rotation = Quaternion.Euler(0, 0, currentAngle);
-            Position.Value = transform.localPosition;
-            Angle.Value = currentAngle;
+            _position.Value = transform.localPosition;
+            _angle.Value = currentAngle;
         }
 
         private Vector3 GetcurrentPosition()
@@ -143,6 +196,12 @@ namespace Game.Player
             position.x = Mathf.Clamp(position.x, _bottomLeftPosition.x, _bottomRightPosition.x);
             position.y = Mathf.Clamp(position.y, _bottomLeftPosition.y, _topLeftPosition.y);
             return position;
+        }
+
+        enum TypeNetwork
+        {
+            Server,
+            SelfHost
         }
     }
 }

@@ -150,7 +150,7 @@ GameObject:
   - component: {fileID: 3727520505073881899}
   - component: {fileID: 2870386232896264415}
   m_Layer: 5
-  m_Name: Player
+  m_Name: Server
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -252,7 +252,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
-  _typeNetwork: 1
   speed: 5
   stopDistance: 100
   _topLeftPosition: {x: 0, y: 0, z: 0}
@@ -260,5 +259,9 @@ MonoBehaviour:
   _bottomLeftPosition: {x: 0, y: 0, z: 0}
   _bottomRightPosition: {x: 0, y: 0, z: 0}
   _cachedPosition: {x: 0, y: 0, z: 0}
-  _playerNameText: {fileID: 8668009264066700398}
   _cacheAngle: 0
+  Position:
+    m_InternalValue: {x: 0, y: 0, z: 0}
+  Angle:
+    m_InternalValue: 0
+  _playerNameText: {fileID: 8668009264066700398}
